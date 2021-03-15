@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\SizeController;
-
+use App\Http\Controllers\Backend\ColorController;
 
 #Size Route
 Route::name('size.')->prefix('size')->group(function(){
@@ -13,4 +13,6 @@ Route::name('size.')->prefix('size')->group(function(){
     Route::get('edit',[SizeController::class,'edit'])->name('edit');
     Route::put('update',[SizeController::class,'update'])->name('update');
 });
+
+Route::resource('color', [ColorController::class]);
 

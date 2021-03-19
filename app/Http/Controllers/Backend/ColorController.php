@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Color;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
 class ColorController extends Controller
 {
@@ -14,17 +16,10 @@ class ColorController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        if (View::exists('backend.color.index')) {
+            return view('backend.color.index');
+        }
+        abort(404);
     }
 
     /**
@@ -35,18 +30,16 @@ class ColorController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+        if (Color::whereName($request->name)->first()) {
+            return 'EXISTS';
+        } else {
+            $color = new Color();
+            $color->name = $request->input('name');
+            $color->hex = $request->input('hex');
+            if ($color->save()) {
+                return 'INSERTED';
+            }
+        }
     }
 
     /**
@@ -55,9 +48,11 @@ class ColorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request)
     {
-        //
+        return response()->json([
+            Color::find($request->id)
+        ]);
     }
 
     /**
@@ -67,9 +62,17 @@ class ColorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $color = Color::find($request->input('id'));
+        $color->name = $request->input('name');
+        $color->hex = $request->input('hex');
+        if ($color->save()) {
+            return response()->json('UPDATED');
+        } else {
+            return response()->json('NOT_UPDATED');
+        }
+        return response()->json('NOT_UPDATED');
     }
 
     /**
@@ -78,8 +81,19 @@ class ColorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        if (Color::find($request->input('id'))->delete()) {
+            return 'DELETED';
+        } else {
+            return 'NOT_DELETED';
+        }
+    }
+
+    public function getAllColors()
+    {
+        return response()->json(
+            Color::latest()->get()
+        );
     }
 }

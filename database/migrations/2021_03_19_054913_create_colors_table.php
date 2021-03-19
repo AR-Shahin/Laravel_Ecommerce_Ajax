@@ -16,7 +16,7 @@ class CreateColorsTable extends Migration
         Schema::create('colors', function (Blueprint $table) {
             $table->id();
             $table->string('name',10)->unique();
-            $table->string('hexcode',20);
+            $table->string('hex','8');
             $table->timestamps();
         });
     }

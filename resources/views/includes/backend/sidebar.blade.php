@@ -31,14 +31,14 @@
                                     <a href="layouts/layout-api/index.html"><span class="title">Category</span></a>
                                 </li>
                                 <li>
-                                    <a href="layouts/collapsed-sidebar/index.html"><span class="title">Color</span></a>
+                                    <a href="{{ route('color.index') }}"><span class="title">Color</span></a>
                                 </li>
                                 <li>
                                     <a href="{{route('size.index')}}"><span class="title">Size</span></a>
                                 </li>
                             </ul>
                         </li>
-                 
+
                         <li class="has-sub">
                             <a href="index.html#"><i class="entypo-flow-tree"></i><span class="title">Menu Levels</span></a>
                             <ul>

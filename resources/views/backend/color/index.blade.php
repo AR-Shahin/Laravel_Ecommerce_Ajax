@@ -1,5 +1,5 @@
 @extends('layouts.backend.master')
-@section('title','Size')
+@section('title','Color')
 @push('css')
 <style>
     em{
@@ -17,15 +17,16 @@
 <div class="row">
 <div class="col-md-8">
 <div class="card">
-<div class="card-header"><h3 class="text-primary">Manage Size</h3></div>
+<div class="card-header"><h3 class="text-primary">Manage Color</h3></div>
 <div class="card-body">
 <table class="table table-bordered">
 <tr>
 <th>SL</th>
 <th>Name</th>
+<th>Hex Code</th>
 <th>Actions</th>
 </tr>
-<tbody id="sizeTableBody"></tbody>
+<tbody id="colorTableBody"></tbody>
 </table>
 
 </div>
@@ -34,17 +35,22 @@
 <div class="col-md-4">
     <div class="panel">
         <div class="card-header">
-            <h3 class="text-primary">Add New Size</h3>
+            <h3 class="text-primary">Add New Color</h3>
         </div>
         <div class="card-body">
-            <form  id="addNewSizeForm">
+            <form  id="addNewColorForm">
                 <div class="form-group">
-                    <label for="">Size Name : </label>
+                    <label for="">Color Name : </label>
                     <input type="text" class="form-control error" placeholder="Size name" id="name" name="name" style="border: 12x solid red">
-                    <span id="sizeName"></span>
+                    <span id="colorName"></span>
+                </div>
+                  <div class="form-group">
+                    <label for="">Hex Code : </label>
+                    <input type="text" class="form-control error" placeholder="Size hex" id="hex" name="hex" style="border: 12x solid red">
+                    <span id="hexName"></span>
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-block btn-success">Add New Size</button>
+                    <button class="btn btn-block btn-success">Add New Color</button>
                 </div>
             </form>
         </div>
@@ -61,10 +67,12 @@
                 <h4 class="modal-title">Edit Size</h4>
             </div>
             <div class="modal-body">
-                <form action="" id="updateSizeForm">
+                <form action="" id="updateColorForm">
                     <div class="form-group">
                         <label for="">Size Name : </label>
                         <input type="text" class="form-control" id="updateName" name="updateName">
+                        <br>
+                         <input type="text" class="form-control" id="updateHex" name="updateHex">
                         <input type="hidden" name="updateId" id="updateId">
                         <span id="sizeName"></span>
                     </div>
@@ -76,13 +84,12 @@
         </div>
     </div>
 </div>
-@stop
+@endsection
 
 @push('script')
 <script>
- let id = "{{ route('size.destroy') }}";
-function table_data_row(data) {
-    
+
+    function table_data_row(data) {
             var	rows = '';
             var i = 0;
             $.each( data, function( key, value ) {
@@ -90,30 +97,35 @@ function table_data_row(data) {
                 rows = rows + '<tr>';
                 rows = rows + '<td>'+ ++i +'</td>';
                 rows = rows + '<td>'+value.name+'</td>';
+                   rows = rows + '<td>'+value.hex+'</td>';
                 rows = rows + '<td data-id="'+value.id+'" class="text-center">';
                 rows = rows + '<a class="btn btn-sm btn-info text-light" id="editRow" data-id="'+value.id+'" data-toggle="modal" data-target="#editModal">Edit</a> ';
                 rows = rows + '<a class="btn btn-sm btn-danger text-light"  id="deleteRow" data-id="'+value.id+'" >Delete</a> ';
                 rows = rows + '</td>';
                 rows = rows + '</tr>';
             });
-            $("#sizeTableBody").html(rows);
-        }
-    //get data for table
-    function getDataForTable(){
-        axios.get("{{ route('size.get') }}")
-        .then(function (response) {
-            table_data_row(response.data)
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+            $("#colorTableBody").html(rows);
     }
-    getDataForTable();
+    function getAllColors(){
+        axios.get("{{ route('color.get') }}")
+        .then(function(response){
+            table_data_row(response.data);
+           // console.log(response.data);
+        })
+        .catch(function(e){
+            console.log(e);
+        })
+    }
+    getAllColors();
 
-//store
-$('#addNewSizeForm').validate({
+    //store
+    //store
+$('#addNewColorForm').validate({
         rules: {
             name: {
+                required: true
+            },
+            hex: {
                 required: true
             }
         },
@@ -130,18 +142,21 @@ $('#addNewSizeForm').validate({
         }
     });
 
-    $('body').on('submit','#addNewSizeForm',function(e){
+
+     $('body').on('submit','#addNewColorForm',function(e){
         e.preventDefault();
-        axios.post("{{ route('size.store') }}", {
-            name: $('#name').val()
+        axios.post("{{ route('color.store') }}", {
+            name: $('#name').val(),
+            hex : $('#hex').val()
         })
         .then(function (response) {
             if(response.data === 'EXISTS'){
               setSwalMessage('warning','Warning!','Duplicate Data!');
             }else if(response.data == 'INSERTED'){
                 setSwalMessage();
-                getDataForTable();
+                getAllColors();
                 $('#name').val('');
+                $('#hex').val('')
             }
             //console.log(response);
         })
@@ -173,11 +188,11 @@ $('#addNewSizeForm').validate({
                 if (result.isConfirmed) {
                     var id = $(this).attr('data-id');
                     axios
-                    .delete("{{ route('size.destroy') }}", {params: {id:id}})
+                    .delete("{{ route('color.destroy') }}", {params: {id:id}})
                     .then((response) => {
                         if(response.data === 'DELETED'){
                             setSwalMessage('success','Delete!','Data Delete Successfully!');
-                            getDataForTable();
+                            getAllColors();
                         }
                     }, (error) => {
                         // error callback
@@ -201,24 +216,25 @@ $('#addNewSizeForm').validate({
             jQuery('#editRowModal').modal('show');
             let id = $(this).attr('data-id');
             axios
-            .get("{{ route('size.edit') }}",{params : {id :id}})
+            .get("{{ route('color.edit') }}",{params : {id :id}})
             .then((response)=>{
                 $('#updateName').val(response.data[0].name);
+                $('#updateHex').val(response.data[0].hex);
                 $('#updateId').val(id);
             })
         });
 
         //update
-        $('body').on('submit','#updateSizeForm',function(e){
+        $('body').on('submit','#updateColorForm',function(e){
             e.preventDefault();
-            axios.put("{{ route('size.update') }}", {
-         name : $('#updateName').val(), id : $('#updateId').val()
+            axios.put("{{ route('color.update') }}", {
+         name : $('#updateName').val(), id : $('#updateId').val(), hex : $('#updateHex').val()
             })
             .then(function (response) {
                 if(response.data === 'UPDATED'){
                     jQuery('#editRowModal').modal('hide');
                     setSwalMessage('success','Updated!','Data Updated Successfully!');
-                    getDataForTable();
+                   getAllColors();
                 }else if(response.data === 'NOT_UPDATED'){
                     setSwalMessage('warning','Warning!','Duplicate Data not allowed!');
                 }
@@ -228,5 +244,5 @@ $('#addNewSizeForm').validate({
             });
         })
 </script>
-@endpush
 
+@endpush

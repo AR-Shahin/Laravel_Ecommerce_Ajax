@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\SizeController;
 use App\Http\Controllers\Backend\ColorController;
 
+
 #Size Route
 Route::name('size.')->prefix('size')->group(function(){
     Route::get('get-all-sizes',[SizeController::class,'getAllSize'])->name('get');
@@ -14,5 +15,18 @@ Route::name('size.')->prefix('size')->group(function(){
     Route::put('update',[SizeController::class,'update'])->name('update');
 });
 
-Route::resource('color', [ColorController::class]);
+
+#Color Route
+Route::name('color.')->prefix('color')->group(function () {
+    Route::get('get-all-colors', [ColorController::class, 'getAllColors'])->name('get');
+    Route::get('index', [ColorController::class, 'index'])->name('index');
+    Route::post('store', [ColorController::class, 'store'])->name('store');
+    Route::delete('destroy', [ColorController::class, 'destroy'])->name('destroy');
+    Route::get('edit', [ColorController::class, 'edit'])->name('edit');
+    Route::put('update', [ColorController::class, 'update'])->name('update');
+});
+
+
+
+
 
